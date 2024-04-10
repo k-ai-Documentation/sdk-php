@@ -27,7 +27,26 @@ class FileInstance {
         }
     }
 
-    public function uploadFiles($files): array {
+    public function downloadFile($fileName): array{
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://fma.kai-studio.ai/download-file', [
+                'headers' => [
+                    'organization-id' => $this->credentials->getOrganizationId(),
+                    'instance-id' => $this->credentials->getInstanceId(),
+                    'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'fileName'=> $fileName
+                ]
+            ]);
+            return json_decode($response->getBody(), true)['response'];
+        }catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function uploadFiles($files) {
         if(count($files) == 0) {
             return [];
         }

@@ -3,14 +3,14 @@
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
-class Audit {
+class Thematic {
     private $credentials;
 
     public function __construct(KaiStudioCredentials $credentials) {
         $this->credentials = $credentials;
     }
 
-    public function getTopicSignature(string $topic):array {
+    public function getTopic(string $topic) {
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/topic', [
@@ -27,7 +27,7 @@ class Audit {
         }
     }
 
-    public function getKbsConnected() :array{
+    public function getKbs() :array{
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/kbs', [
@@ -41,7 +41,7 @@ class Audit {
         }
     }
 
-    public function getAllDocumentsFromKbs():array {
+    public function getDocuments():array {
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/documents', [
@@ -106,7 +106,7 @@ class Audit {
         } 
     }
 
-    public function testRunningState():array {
+    public function getTestRunningState():array {
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/test-running-state', [
@@ -134,12 +134,16 @@ class Audit {
         }
     }
 
-    public function listTopics(): array {
+    public function listTopics(int $limit, int $offset): array {
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/list/topics', [
                 'headers' => [
                     'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'limit' => $limit,
+                    'offset' => $offset
                 ]
             ]);
             return json_decode($response->getBody(), true)['response'];

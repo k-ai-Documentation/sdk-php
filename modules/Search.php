@@ -45,6 +45,17 @@ class Search {
             throw $e;
         }
     }
+    public function countAnalyzedDocuments(): int {
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/thematic/stats/count-documents', [
+                'headers' => [
+                    'api-key' => $this->credentials->getApiKey()
+                ]
+            ]);
+            return json_decode($response->getBody(), true)['response'];
+        }
+    }
     public function getDocSignature(string $docId): array {
         try {
             $client = new Client();
@@ -119,5 +130,21 @@ class Search {
         }
     }
 
+    public function listQuestionsAsked(int $offset = 0, int $limit = 20) {
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/search/stats/list-search', [
+                'headers' => [
+                    'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'offset' => $offset,
+                    'limit' => $limit
+                ]
+            ]);
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
 
 }

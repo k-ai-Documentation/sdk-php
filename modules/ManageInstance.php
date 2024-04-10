@@ -12,7 +12,7 @@ class ManageInstance {
         $this->credentials = $credentials;
     }
 
-    public function getGlobalHealth(): bool {
+    public function getGlobalHealth() {
         try {
             $client = new Client();
             $response = $client->request('GET', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/global/health', [
@@ -27,7 +27,7 @@ class ManageInstance {
         }
     }
 
-    public function isApiAlive(): bool {
+    public function isApiAlive() {
         try {
             $client = new Client();
             $response = $client->request('GET', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/health', [
@@ -124,6 +124,64 @@ class ManageInstance {
             ]);
             return json_decode($response->getBody(), true)['response']; 
         } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function setPlayground(Array $typeList): bool{
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://ima.kai-studio.ai/set-playground', [
+                'headers' => [
+                    'organization-id' => $this->credentials->getOrganizationId(),
+                    'instance-id' => $this->credentials->getInstanceId(),
+                    'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'typeList' => $typeList
+                ]
+            ]);
+            return json_decode($response->getBody(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function updateKb(string $id, $options): bool{
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://ima.kai-studio.ai/update-kb', [
+                'headers' => [
+                    'organization-id' => $this->credentials->getOrganizationId(),
+                    'instance-id' => $this->credentials->getInstanceId(),
+                    'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'id' => $id,
+                    'options' => $options
+                ]
+            ]);
+            return json_decode($response->getBody(), true)['response'];
+        }catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function removeKb(string $id): bool{
+        try {
+            $client = new Client();
+            $response = $client->request('POST', 'https://ima.kai-studio.ai/remove-kb', [
+                'headers' => [
+                    'organization-id' => $this->credentials->getOrganizationId(),
+                    'instance-id' => $this->credentials->getInstanceId(),
+                    'api-key' => $this->credentials->getApiKey()
+                ],
+                'json' => [
+                    'id' => $id
+                ]
+            ]);
+            return json_decode($response->getBody(), true)['response'];
+        }catch (GuzzleException $e) {
             throw $e;
         }
     }
