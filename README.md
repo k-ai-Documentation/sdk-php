@@ -28,7 +28,7 @@ $search = $kaistudio->search();
 
 echo "SEARCH QUERY: what is the history of France TV? \n";
 var_dump($search->query("what is the history of France TV?", "userid"));
-````
+```
 
 ## Usage Guide
 ### File Management
