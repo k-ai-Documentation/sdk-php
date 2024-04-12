@@ -5,31 +5,34 @@ use GuzzleHttp\Exception\GuzzleException;
 
 
 class Search {
-    private $credentials;
+    private $headers;
+    private $baseUrl;
+    private $client;
 
-    public function __construct(KaiStudioCredentials $credentials) {
-        $this->credentials = $credentials;
+    public function __construct($headers, $baseUrl)
+    {
+        $this->headers = $headers;
+        $this->baseUrl = $baseUrl;
+        $this->client = new Client([
+            'base_uri' => $this->baseUrl,
+            'headers' => $this->headers
+        ]);
     }
 
-    public function query(string $query, string $user): SearchResult {
+    public function query(string $query, string $user) {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/search/query', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
+            $response = $this->client->request('POST', 'api/search/query', [
                 'json' => [
                     'query' => $query,
                     'user' => $user
                 ]
             ]);
-            $response = json_decode($response->getBody(), true)['response'];
-            return new SearchResult($response['query'], $response['answer'], $response['confidentRate'], $response['gotAnswer'], $response['reason'], $response['documents'], $response['followingQuestions']);
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
     }
-    public function getRelatedDocuments(string $query): array {
+    public function getRelatedDocuments(string $query) {
         try {
             $client = new Client();
             $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/search/related-documents', [

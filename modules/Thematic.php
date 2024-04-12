@@ -4,197 +4,144 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
 class Thematic {
-    private $credentials;
+    private $headers;
+    private $baseUrl;
+    private $client;
 
-    public function __construct(KaiStudioCredentials $credentials) {
-        $this->credentials = $credentials;
+    public function __construct($headers, $baseUrl)
+    {
+        $this->headers = $headers;
+        $this->baseUrl = $baseUrl;
+        $this->client = new Client([
+            'base_uri' => $this->baseUrl,
+            'headers' => $this->headers
+        ]);
+    }
+    public function getTopic($topic)
+    {
+        try {
+            $response = $this->client->post('api/audit/topic', [
+                'json' => ['topic' => $topic]
+            ]);
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
     }
 
-    public function getTopic(string $topic) {
+    public function getKbs()
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/topic', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
+            $response = $this->client->post('api/audit/kbs');
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function getDocuments()
+    {
+        try {
+            $response = $this->client->post('api/audit/documents');
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function addAuditQuestion($question, $answer)
+    {
+        try {
+            $response = $this->client->post('api/audit/add-audit-question', [
                 'json' => [
-                    'topic' => $topic
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
-        }catch (GuzzleException $e) {
-            throw $e;
-        }
-    }
-
-    public function getKbs() :array{
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/kbs', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
-        }catch (GuzzleException $e) {
-            throw $e;
-        }
-    }
-
-    public function getDocuments():array {
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/documents', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
-        }catch (GuzzleException $e) {
-            throw $e;
-        }
-    }
-
-    public function addAuditQuestion(string $question, string $answer):bool {
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/add-audit-question', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
-                'json'=> [
                     'question' => $question,
                     'answer' => $answer
                 ]
             ]);
-            return json_decode($response->getBody(), true)['response'];
-        }catch (GuzzleException $e) {
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
             throw $e;
         }
     }
 
-    public function updateAuditQuestion(string $id, string $question, string $answer):bool {
+    public function updateAuditQuestion($id, $question, $answer)
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/update-audit-question', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
-                'json'=> [
+            $response = $this->client->post('api/audit/update-audit-question', [
+                'json' => [
                     'id' => $id,
                     'question' => $question,
                     'answer' => $answer
                 ]
             ]);
-            return json_decode($response->getBody(), true)['response'];
-        } catch (GuzzleException $e) {
-            throw $e;
-        } 
-    }
-
-    public function listAuditQuestions():array {
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/list-audit-questions', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
-        } catch (GuzzleException $e) {
-            throw $e;
-        } 
-    }
-
-    public function getTestRunningState():array {
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/test-running-state', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
     }
 
-    public function runTest():string {
+    public function listAuditQuestions()
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/run-test', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/list-audit-questions');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
     }
 
-    public function listTopics(int $limit, int $offset): array {
+    public function getTestRunningState()
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/list/topics', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
+            $response = $this->client->post('api/audit/test-running-state');
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function runTest()
+    {
+        try {
+            $response = $this->client->post('api/audit/run-test');
+            return json_decode($response->getBody()->getContents(), true)['response'];
+        } catch (GuzzleException $e) {
+            throw $e;
+        }
+    }
+
+    public function listTopics($limit, $offset)
+    {
+        try {
+            $response = $this->client->post('api/thematic/list/topics', [
                 'json' => [
                     'limit' => $limit,
                     'offset' => $offset
                 ]
             ]);
-            return json_decode($response->getBody(), true)['response'];
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
     }
 
-    public function listSubtopics(string $topicName):array {
+    public function getSubtopic($subtopic)
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/list/subtopics', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
-                'json' => [
-                    'topicName' => $topicName
-                ]
+            $response = $this->client->post('api/audit/subtopic', [
+                'json' => ['subtopic' => $subtopic]
             ]);
-            return json_decode($response->getBody(), true)['response'];
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
     }
 
-    public function getSubtopic(string $subtopic):array {
+    public function countTopics()
+    {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/subtopic', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ],
-                'json' => [
-                    'subtopic' => $subtopic
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
-        } catch (GuzzleException $e) {
-            throw $e;
-        }
-    }
-
-    public function countTopics():int {
-        try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/stats/count-topics', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/stats/count-topics');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
@@ -203,13 +150,8 @@ class Thematic {
 
     public function countSubtopics():int {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/stats/count-subtopics', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/stats/count-subtopics');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
@@ -217,13 +159,8 @@ class Thematic {
 
     public function countDocuments():int {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/stats/count-documents', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/stats/count-documents');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
@@ -231,13 +168,8 @@ class Thematic {
 
     public function countAuditQuestions():int {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/stats/count-audit-questions', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/stats/count-audit-questions');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }
@@ -245,13 +177,8 @@ class Thematic {
 
     public function countValidatedAuditQuestions():int {
         try {
-            $client = new Client();
-            $response = $client->request('POST', 'https://' . $this->credentials->getOrganizationId() . '.kai-studio.ai/' . $this->credentials->getInstanceId() . '/api/audit/stats/count-validated-audit-questions', [
-                'headers' => [
-                    'api-key' => $this->credentials->getApiKey()
-                ]
-            ]);
-            return json_decode($response->getBody(), true)['response'];
+            $response = $this->client->post('api/audit/stats/count-validated-audit-questions');
+            return json_decode($response->getBody()->getContents(), true)['response'];
         } catch (GuzzleException $e) {
             throw $e;
         }

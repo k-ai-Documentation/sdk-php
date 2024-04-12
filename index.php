@@ -4,26 +4,53 @@ require_once(realpath(dirname(__FILE__) . "/modules/ManageInstance.php"));
 require_once(realpath(dirname(__FILE__) . "/modules/Search.php"));
 require_once(realpath(dirname(__FILE__) . "/modules/Thematic.php"));
 require_once(realpath(dirname(__FILE__) . "/modules/KMAudit.php"));
+require_once(realpath(dirname(__FILE__) . "/modules/SemanticGraph.php"));
 require_once(realpath(dirname(__FILE__) . "/KaiStudioCredentials.php"));
-require_once(realpath(dirname(__FILE__) . "/searchResult.php"));
 require_once 'vendor/autoload.php';
 
 class KaiStudio {
 
     private $credentials; 
+    private $headers;
+    private $baseUrl;
+
     private $_search; 
     private $_fileInstance; 
     private $_manageInstance; 
     private $_thematic;
     private $_auditInstance;
+    private $_semanticGraph;
 
     public function __construct(KaiStudioCredentials $credentials) {
         $this->credentials = $credentials;
-        $this->_search = new Search($this->credentials);
-        $this->_fileInstance = new FileInstance($this->credentials);
-        $this->_manageInstance = new ManageInstance($this->credentials);
-        $this->_thematic = new Thematic($this->credentials);
-        $this->_auditInstance = new KMAudit($this->credentials);
+        $this->headers = [];
+        $this->baseUrl = '';
+
+        if (!empty($this->credentials->getOrganizationId()) && !empty($this->credentials->getInstanceId()) && !empty($this->credentials->getApiKey())) {
+            $this->headers = [
+                'organization-id' => $this->credentials->getOrganizationId(),
+                'instance-id' => $this->credentials->getInstanceId(),
+                'api-key' => $this->credentials->getApiKey()
+            ];
+
+            $this->baseUrl = "https://{$this->credentials->getOrganizationId()}.kai-studio.ai/{$this->credentials->getInstanceId()}/";
+        }
+
+        if (!empty($this->credentials->getHost())) {
+            $this->baseUrl = $this->credentials->getHost();
+            if (!empty($this->credentials->getApiKey())) {
+                $this->headers = [
+                    'api-key' => $this->credentials->getApiKey()
+                ];
+            }
+        }
+
+        $this->_search = new Search($this->headers, $this->baseUrl);
+        $this->_auditInstance = new KMAudit($this->headers, $this->baseUrl);
+        $this->_thematic = new Thematic($this->headers, $this->baseUrl);
+        $this->_semanticGraph = new SemanticGraph($this->headers, $this->baseUrl);
+        $this->_manageInstance = new ManageInstance($this->headers, $this->baseUrl);
+        $this->_fileInstance = new FileInstance($this->headers);
     }
 
     public function getCredentials() {
@@ -50,4 +77,7 @@ class KaiStudio {
         return $this->_auditInstance;
     }
 
+    public function semanticGraph() {
+        return $this->_semanticGraph;
+    }
 }
