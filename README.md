@@ -96,6 +96,13 @@ $manageInstance->getGlobalHealth();
 - countAuditQuestions
 - countValidatedAuditQuestions
 
+### SemanticGraph
+[SemanticGraph.php](modules/SemanticGraph.php) provides methods for managing semantic graph.
+- getNodes
+- getLinkedNodes
+- getNodeByLabel
+- detectApproximalNodes
+
 For example:
 ```php
 $thematicInstance = $kaistudio->thematicInstance();
