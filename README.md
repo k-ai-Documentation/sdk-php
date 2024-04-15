@@ -33,7 +33,6 @@ var_dump($search->query("what is the history of France TV?", "userid"));
 ## Usage Guide
 ### File Management
 [FileInstance.php](modules/FileInstance.php) provides methods for file management.
-- uploadFilescreation, deletion, and modification.
 - listFiles
 - downloadFile
 - uploadFiles
@@ -47,7 +46,6 @@ $fileInstance->uploadFiles($fileArray);
 
 ### Auditing
 [KMAudit.php](modules/KMAudit.php) provides methods for auditing.
-- getConflictInformationlows for tracking and auditing file changes.
 - getConflictInformation
 - getDuplicatedInformation
 - setConflictManaged
@@ -88,13 +86,18 @@ $manageInstance->getGlobalHealth();
 - getTestRunningState
 - runTest
 - listTopics
-- listSubtopics
 - getSubtopic
 - countTopics
 - countSubtopics
 - countDocuments
 - countAuditQuestions
 - countValidatedAuditQuestions
+
+For example:
+```php
+$thematicInstance = $kaistudio->thematicInstance();
+$thematicInstance->getKbs();
+```
 
 ### SemanticGraph
 [SemanticGraph.php](modules/SemanticGraph.php) provides methods for managing semantic graph.
@@ -107,6 +110,22 @@ For example:
 ```php
 $thematicInstance = $kaistudio->thematicInstance();
 $thematicInstance->getKbs();
+```
+
+### Search
+[Search.php](modules/Search.php) provides methods for searching.
+- search
+- getRelatedDocuments
+- countAnalyzedDocuments
+- getDocSignature
+- getDocsIds
+- countDoneRequests
+- countAnsweredDoneRequests
+- generateFollowingQuestion
+- listQuestionsAsked
+```php
+$searchInstance = $kaistudio->searchInstance();
+$searchInstance->query("what is the history of France TV?", "userid");
 ```
 
 <u>**For more examples, you can check the [example.php](example.php) file.**</u>
