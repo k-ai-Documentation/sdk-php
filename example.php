@@ -1,9 +1,13 @@
 <?php
 require_once(realpath(dirname(__FILE__) . "/index.php"));
 
+// for SaaS user
 $credentials = new KaiStudioCredentials("your organization id",
     "your instance id",
     "your api key");
+// for premise user
+// $credentials = new KaiStudioCredentials("your host", "your api key");
+
 
 $kaistudio = new KaiStudio($credentials);
 $fileInstance = $kaistudio->fileInstance();

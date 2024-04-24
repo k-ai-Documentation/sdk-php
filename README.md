@@ -19,9 +19,12 @@ Here's a simple example to get you started with the SDK. This example demonstrat
 <?php
 require_once(realpath(dirname(__FILE__) . "/index.php"));
 
+// for SaaS user
 $credentials = new KaiStudioCredentials("your organization id",
     "your instance id",
     "your api key");
+// for premise user
+//$credentials = new KaiStudioCredentials("your host", "your api key");
 
 $kaistudio = new KaiStudio($credentials);
 $search = $kaistudio->search();
@@ -31,6 +34,39 @@ var_dump($search->query("what is the history of France TV?", "userid"));
 ```
 
 ## Usage Guide
+There are two type of versions: SaaS version and Premise version.
+
+SaaS version means you are using the service provided by Kai with cloud service. In this case, you will need 3 keys (organizationId, instanceId, apiKey) to initialize kaiStudio. Please refer to the following code in [index.php](index.php):
+```php
+if (this.credentials.organizationId && this.credentials.instanceId && this.credentials.apiKey) {
+    headers = {
+        'organization-id': this.credentials.organizationId,
+        'instance-id': this.credentials.instanceId,
+        'api-key': this.credentials.apiKey
+    }
+
+    baseUrl = `https://${this.credentials.organizationId}.kai-studio.ai/${this.credentials.instanceId}/`
+}
+```
+
+Premise version means you are using the service in your local server in your enterprise. In this case, you will need host and api key (optional) to initialize kaiStudio. Please refer to the following code in [index.php](index.php):
+```php
+if (!empty($this->credentials->getHost())) {
+    $this->baseUrl = $this->credentials->getHost();
+    if (!empty($this->credentials->getApiKey())) {
+        $this->headers = [
+            'api-key' => $this->credentials->getApiKey()
+        ];
+    }
+}
+```
+---
+
+There are 6 modules in the SDK:
+
+| [File Management](#file-management) | [Audit](#audit) | [ManageInstance](#manageinstance) | [Thematic](#thematic) | [SemanticGraph](#semanticgraph) | [Search](#search) |
+
+
 ### File Management
 [FileInstance.php](modules/FileInstance.php) provides methods for file management.
 - listFiles
@@ -44,7 +80,7 @@ $fileInstance = $kaistudio->fileInstance();
 $fileInstance->uploadFiles($fileArray);
 ```
 
-### Auditing
+### Audit
 [KMAudit.php](modules/KMAudit.php) provides methods for auditing.
 - getConflictInformation
 - getDuplicatedInformation
